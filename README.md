@@ -14,11 +14,6 @@ Detect and explain human facial expressions in any YouTube video using a five-st
 
 1. [Quick Start](#quick-start)
 2. [Data Processing Pipeline](#data-processing-pipeline)
-   - [Step 1 — Video Download](#step-1--video-download-download_video)
-   - [Step 2 — Frame Extraction](#step-2--frame-extraction-extract_sample_frames)
-   - [Step 3 — Face Detection & Emotion Classification](#step-3--face-detection--emotion-classification-deepface_analyze--claude_detect--process_frames)
-   - [Step 4 — Explanation Generation](#step-4--explanation-generation-claude_explain)
-   - [Step 5 — Visualisation](#step-5--visualisation-display_gallery--show_summary)
 3. [Architecture — Data Flow Diagram](#architecture--data-flow-diagram)
 4. [Libraries & Technologies](#libraries--technologies)
 5. [AI Technologies Explained](#ai-technologies-explained)
@@ -26,6 +21,7 @@ Detect and explain human facial expressions in any YouTube video using a five-st
 7. [Caching System](#caching-system)
 8. [Configuration Reference](#configuration-reference)
 9. [Output Files](#output-files)
+10. [Auditing](#auditing)
 
 ---
 
