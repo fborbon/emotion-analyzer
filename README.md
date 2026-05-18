@@ -1,8 +1,31 @@
 # 🎭 Video Emotion Analysis
 
-Detect and explain human facial expressions in any YouTube video using a two-model pipeline: **DeepFace** (local CNN) for fast emotion classification and **Claude Vision** (LLM) for natural-language explanations grounded in facial muscle anatomy.
+Detect and explain human facial expressions in any YouTube video using a five-stage, disk-cached pipeline that combines a local CNN classifier with a multimodal LLM for richly grounded natural-language analysis. The system downloads a YouTube video, samples frames at configurable intervals, runs DeepFace for fast CPU-based emotion detection, falls back to Claude Vision for challenging frames, and generates per-face FACS-grounded explanations — all with incremental disk caching so interrupted runs resume seamlessly.
+
+**Main technologies:** Python · Jupyter Notebook · DeepFace (miniXception CNN) · Claude Sonnet 4.6 (Anthropic API) · yt-dlp · OpenCV · matplotlib
+
+**Monthly cost:** Depends on usage. Each analyzed video makes ~15–25 Claude API calls (~30 000 tokens total). At Claude Sonnet pricing ($3/MTok input · $15/MTok output), a 5-minute video costs roughly **$0.10–0.20**. For casual use (a few videos per month) expect **under $1/month**. There are no infrastructure costs — the notebook runs entirely on your local machine.
 
 > **Current demo video:** ["Saving Private Ryan" wins Best Film Editing — 71st Oscars (1999)](https://www.youtube.com/watch?v=y1PruACVorM)
+
+---
+
+## Table of Contents
+
+1. [Quick Start](#quick-start)
+2. [Data Processing Pipeline](#data-processing-pipeline)
+   - [Step 1 — Video Download](#step-1--video-download-download_video)
+   - [Step 2 — Frame Extraction](#step-2--frame-extraction-extract_sample_frames)
+   - [Step 3 — Face Detection & Emotion Classification](#step-3--face-detection--emotion-classification-deepface_analyze--claude_detect--process_frames)
+   - [Step 4 — Explanation Generation](#step-4--explanation-generation-claude_explain)
+   - [Step 5 — Visualisation](#step-5--visualisation-display_gallery--show_summary)
+3. [Architecture — Data Flow Diagram](#architecture--data-flow-diagram)
+4. [Libraries & Technologies](#libraries--technologies)
+5. [AI Technologies Explained](#ai-technologies-explained)
+6. [Predictive Models](#predictive-models)
+7. [Caching System](#caching-system)
+8. [Configuration Reference](#configuration-reference)
+9. [Output Files](#output-files)
 
 ---
 
@@ -339,3 +362,33 @@ All tunable parameters live in the configuration cell (cell 4):
 | `emotion_analysis/summary.png` | Pie chart (distribution) + scatter plot (timeline) |
 | `emotion_analysis/detections.json` | Machine-readable results: all metadata + explanations |
 | `emotion_analysis/faces/face_NN_emotion.jpg` | Individual face crops |
+
+---
+
+## Auditing
+
+This section provides a structured checklist for review by an IT expert and a subject-matter expert (computer vision / AI ethics).
+
+### Audit Items
+
+- **Cost & resource minimization** — Disk caching across all five steps avoids redundant API calls. Claude is only invoked when DeepFace fails or for explanation generation. Token limits (`max_tokens` 300–450) are conservatively set.
+- **IT architecture** — Five-stage sequential pipeline with independent disk cache per stage is clean and resumable. No cloud infrastructure; runs entirely on the local machine.
+- **Code efficiency** — DeepFace initialises on first call (TensorFlow model load). On large batches, batching Claude calls (currently one per detection) would reduce latency and cost.
+- **Cybersecurity** — `ANTHROPIC_API_KEY` is set as an environment variable (not hardcoded). YouTube URLs are passed directly to `yt-dlp` without sanitisation; malformed URLs may produce unexpected output. No sensitive personal data is stored beyond the analysed video.
+- **Readability & maintainability** — Pipeline steps are clearly separated into named functions. Mermaid architecture diagram accurately reflects the code. Configuration is centralised in one notebook cell.
+- **AI / ML model adequacy** — DeepFace miniXception was trained on FER-2013 (48×48 px lab images); accuracy degrades on natural, uncontrolled video. Claude as a fallback adds robustness but increases cost per difficult frame. JPEG 85% compression is a reasonable quality/cost balance.
+- **Ethical & legal considerations** — Facial emotion analysis of real people (e.g., public figures in videos) may be subject to privacy regulations (GDPR) depending on jurisdiction and use case. YouTube content is subject to the platform's terms of service.
+- **Data management** — Cache files accumulate on disk without automatic cleanup. Downloaded videos can be large; no disk-space guard is in place.
+
+### Summary Table
+
+| Audit Item | Claude's Assessment | Human Expert Assessment |
+|---|---|---|
+| Cost & resource minimization | Caching and conservative `max_tokens` keep cost under $0.20 per 5-min video. Batching Claude calls is the main unexploited saving. | |
+| IT architecture | Sound single-machine pipeline. Clear stage boundaries. No over-engineering for the stated use case. | |
+| Code efficiency | Sequential per-detection Claude calls are the main bottleneck. DeepFace model reload per run adds ~5–10 s cold-start. | |
+| Cybersecurity | API key handled correctly. No user-facing input validation on URL parameter. No PII beyond the video content. | |
+| Readability & maintainability | Notebook is well-structured and self-documenting. Centralised configuration cell is a good practice. | |
+| AI / ML model adequacy | DeepFace is appropriate for fast CPU processing; known FER-2013 accuracy ceiling (~65%). Claude fallback is well-suited for challenging frames. | |
+| Ethical & legal considerations | Consent and jurisdictional compliance for facial analysis of real individuals should be verified before production use. | |
+| Data management | No disk-space limit or cache eviction policy. Recommended: add a cleanup script or size warning. | |
