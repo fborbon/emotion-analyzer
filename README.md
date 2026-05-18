@@ -1,4 +1,4 @@
-# 🎭 Video Emotion Analysis
+# 🎭 Emotion Analyzer
 
 Detect and explain human facial expressions in any YouTube video using a five-stage, disk-cached pipeline that combines a local CNN classifier with a multimodal LLM for richly grounded natural-language analysis. The system downloads a YouTube video, samples frames at configurable intervals, runs DeepFace for fast CPU-based emotion detection, falls back to Claude Vision for challenging frames, and generates per-face FACS-grounded explanations — all with incremental disk caching so interrupted runs resume seamlessly.
 
