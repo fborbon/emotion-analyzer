@@ -250,8 +250,8 @@ Unlike DeepFace, Claude does not need to be explicitly trained on emotion datase
 | Attribute | Value |
 |-----------|-------|
 | Library | `deepface 0.0.100` |
-| Architecture | miniXception (lightweight depthwise-separable CNN) |
-| Training dataset | FER-2013 (35 887 48×48 grayscale face images, 7 classes) |
+| Architecture | [miniXception](https://arxiv.org/abs/1710.07557) (lightweight depthwise-separable CNN) |
+| Training dataset | [FER-2013](https://arxiv.org/abs/1307.0414) (35 887 48×48 grayscale face images, 7 classes) |
 | Output | Softmax probabilities × 100 → scores summing to ~100 |
 | Classes | `angry · disgust · fear · happy · neutral · sad · surprise` |
 | Face detector backend | OpenCV Haar cascade (`haarcascade_frontalface_default.xml`) |
